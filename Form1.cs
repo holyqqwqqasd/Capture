@@ -165,7 +165,7 @@ namespace Capture
                     storage.Clear();
 
                     //Метод Виолы-Джонса для картинки в тонах серого
-                    CvSeq<CvAvgComp> faces = Cv.HaarDetectObjects(gray, cascade, storage, ScaleFactor, 2, 0, new CvSize(30, 30));
+                    CvSeq<CvAvgComp> faces = Cv.HaarDetectObjects(gray, cascade, storage, ScaleFactor, 2, HaarDetectionType.FindBiggestObject, new CvSize(30, 30));
 
                     return faces;
                 }
@@ -238,6 +238,7 @@ namespace Capture
                     if (pre_moving == moving)
                     {
                         getfaces = moving;
+                        Text = "Движение: " + moving;
                     }
                     pre_moving = moving;
 
@@ -246,7 +247,6 @@ namespace Capture
 
                         CvSeq<CvAvgComp> faces = GetFaces(tmp);
 
-                        // Обвод окружностями областей с обнаруженными лицами 
                         for (int i = 0; i < faces.Total; i++)
                         {
                             CvRect r = faces[i].Value.Rect;

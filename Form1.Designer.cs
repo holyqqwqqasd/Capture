@@ -39,19 +39,20 @@
             // 
             // btConnect
             // 
-            this.btConnect.Location = new System.Drawing.Point(497, 27);
-            this.btConnect.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btConnect.Location = new System.Drawing.Point(485, 27);
+            this.btConnect.Margin = new System.Windows.Forms.Padding(2);
             this.btConnect.Name = "btConnect";
             this.btConnect.Size = new System.Drawing.Size(72, 24);
             this.btConnect.TabIndex = 0;
             this.btConnect.Text = "Connect";
             this.btConnect.UseVisualStyleBackColor = true;
+            this.btConnect.Visible = false;
             this.btConnect.Click += new System.EventHandler(this.btConnect_Click);
             // 
             // tbOut
             // 
             this.tbOut.Location = new System.Drawing.Point(475, 55);
-            this.tbOut.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tbOut.Margin = new System.Windows.Forms.Padding(2);
             this.tbOut.Multiline = true;
             this.tbOut.Name = "tbOut";
             this.tbOut.Size = new System.Drawing.Size(172, 303);
@@ -61,7 +62,7 @@
             // 
             this.camera1Combo.FormattingEnabled = true;
             this.camera1Combo.Location = new System.Drawing.Point(497, 1);
-            this.camera1Combo.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.camera1Combo.Margin = new System.Windows.Forms.Padding(2);
             this.camera1Combo.Name = "camera1Combo";
             this.camera1Combo.Size = new System.Drawing.Size(150, 21);
             this.camera1Combo.TabIndex = 2;
@@ -70,7 +71,7 @@
             // pictureBox1
             // 
             this.pictureBox1.Location = new System.Drawing.Point(9, 10);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(461, 348);
             this.pictureBox1.TabIndex = 3;
@@ -80,7 +81,7 @@
             // 
             this.btStop.Enabled = false;
             this.btStop.Location = new System.Drawing.Point(594, 27);
-            this.btStop.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btStop.Margin = new System.Windows.Forms.Padding(2);
             this.btStop.Name = "btStop";
             this.btStop.Size = new System.Drawing.Size(52, 24);
             this.btStop.TabIndex = 4;
@@ -90,11 +91,11 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(652, 55);
+            this.button1.Location = new System.Drawing.Point(502, 27);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(55, 23);
             this.button1.TabIndex = 5;
-            this.button1.Text = "button1";
+            this.button1.Text = "start";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -102,14 +103,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(719, 367);
+            this.ClientSize = new System.Drawing.Size(659, 367);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.btStop);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.camera1Combo);
             this.Controls.Add(this.tbOut);
             this.Controls.Add(this.btConnect);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
