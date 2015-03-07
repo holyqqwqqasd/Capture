@@ -151,5 +151,120 @@ namespace Capture
             btStop.Enabled = false;
         }
 
+        private CvSeq<CvAvgComp> GetFaces(IplImage img)
+        {
+            using (IplImage gray = new IplImage(img.Size, BitDepth.U8, 1))
+            {
+                Cv.CvtColor(img, gray, ColorConversion.BgrToGray); //Преобразование img в тоны серого gray
+                //                    Cv.Resize(gray, smallImg, Interpolation.Linear);   //Уменьшение размеров
+                Cv.EqualizeHist(gray, gray);  //Повышение контрастности методом гистограмм
+
+                using (var cascade = CvHaarClassifierCascade.FromFile("Data/haarcascade_frontalface_default.xml"))
+                using (var storage = new CvMemStorage())
+                {
+                    storage.Clear();
+
+                    //Метод Виолы-Джонса для картинки в тонах серого
+                    CvSeq<CvAvgComp> faces = Cv.HaarDetectObjects(gray, cascade, storage, ScaleFactor, 2, 0, new CvSize(30, 30));
+
+                    return faces;
+                }
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                capture = new CvCapture(NumDev);
+            }
+            catch
+            {
+                MessageBox.Show("[!] Error: Can't open camera.");
+            }
+
+            if (capture == null) //Не удалось соединиться с камерой !
+                return;
+
+            Stop = false;
+            btStop.Enabled = true;
+
+            double width = capture.GetCaptureProperty(CaptureProperty.FrameWidth);
+            double height = capture.GetCaptureProperty(CaptureProperty.FrameHeight);
+
+            tbOut.AppendText("[i] Подключение к камере:\r\n     " + camera1Combo.Items[NumDev] + "\r\n");
+            tbOut.AppendText("[i] width: " + width + "\r\n");
+            tbOut.AppendText("[i] height: " + height + "\r\n");
+
+            IplImage tmp = null;
+            IplImage silh = null;
+            IplImage pre_frame = null;
+            bool moving = false;
+            bool pre_moving = false;
+            bool getfaces = false;
+
+            while (true)
+            {
+                capture.GrabFrame(); //Захватываем кадр
+                frame = capture.RetrieveFrame();
+
+                if (pre_frame == null && silh == null)
+                {
+                    silh = new IplImage(frame.Size, frame.Depth, frame.NChannels);
+                    pre_frame = frame.Clone();
+                    continue;
+                }
+
+                using (IplImage gray = new IplImage(frame.Size, BitDepth.U8, 1))
+                {
+                    Cv.AbsDiff(frame, pre_frame, silh);
+                    Cv.CvtColor(silh, gray, ColorConversion.BgrToGray); //Преобразование img в тоны серого gray
+                    double count = Cv.Threshold(gray, gray, 100, 255, ThresholdType.Binary);
+
+                    moving = false;
+                    for (int x = 0; x < gray.Size.Width; x++)
+                    {
+                        for (int y = 0; y < gray.Size.Height; y++)
+                        {
+                            CvScalar se = gray.Get2D(y, x);
+                            if (se.Val0 > 0)
+                            {
+                                moving = true;
+                                break;
+                            }
+                        }
+                        if (moving) break;
+                    }
+                    if (pre_moving == moving)
+                    {
+                        getfaces = moving;
+                    }
+                    pre_moving = moving;
+
+                    if (getfaces) {
+                        tmp = frame.Clone();
+
+                        CvSeq<CvAvgComp> faces = GetFaces(tmp);
+
+                        // Обвод окружностями областей с обнаруженными лицами 
+                        for (int i = 0; i < faces.Total; i++)
+                        {
+                            CvRect r = faces[i].Value.Rect;
+                            tmp.Rectangle(r, colors[0]);
+                        }
+
+                        pictureBox1.Image = BitmapConverter.ToBitmap(tmp);
+                        pictureBox1.Refresh();
+                    }
+
+                    pre_frame.Dispose();
+                    pre_frame = frame.Clone();
+
+                    Application.DoEvents();
+                    if (Stop) break;
+                }
+            }
+        }
+
     }
 }

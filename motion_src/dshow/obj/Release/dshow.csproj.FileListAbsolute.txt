@@ -1,0 +1,3 @@
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\dshow\bin\Release\dshow.dll
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\dshow\obj\Release\dshow.csprojResolveAssemblyReference.cache
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\dshow\obj\Release\dshow.dll

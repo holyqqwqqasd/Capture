@@ -1,0 +1,14 @@
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\bin\Release\motion.exe
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\bin\Release\AForge.Imaging.dll
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\bin\Release\AForge.Math.dll
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\bin\Release\dshow.dll
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\bin\Release\Tiger.Video.VFW.dll
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\bin\Release\AForge.dll
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\obj\Release\motion.csprojResolveAssemblyReference.cache
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\obj\Release\motion.AboutForm.resources
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\obj\Release\motion.CameraWindow.resources
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\obj\Release\motion.CaptureDeviceForm.resources
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\obj\Release\motion.MainForm.resources
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\obj\Release\motion.URLForm.resources
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\obj\Release\motion.csproj.GenerateResource.Cache
+C:\Users\Karen\Documents\GitHub\Capture\motion_src\motion\obj\Release\motion.exe

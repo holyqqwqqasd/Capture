@@ -33,14 +33,16 @@
             this.camera1Combo = new System.Windows.Forms.ComboBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.btStop = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // btConnect
             // 
-            this.btConnect.Location = new System.Drawing.Point(663, 33);
+            this.btConnect.Location = new System.Drawing.Point(497, 27);
+            this.btConnect.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btConnect.Name = "btConnect";
-            this.btConnect.Size = new System.Drawing.Size(96, 29);
+            this.btConnect.Size = new System.Drawing.Size(72, 24);
             this.btConnect.TabIndex = 0;
             this.btConnect.Text = "Connect";
             this.btConnect.UseVisualStyleBackColor = true;
@@ -48,50 +50,66 @@
             // 
             // tbOut
             // 
-            this.tbOut.Location = new System.Drawing.Point(633, 68);
+            this.tbOut.Location = new System.Drawing.Point(475, 55);
+            this.tbOut.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tbOut.Multiline = true;
             this.tbOut.Name = "tbOut";
-            this.tbOut.Size = new System.Drawing.Size(228, 372);
+            this.tbOut.Size = new System.Drawing.Size(172, 303);
             this.tbOut.TabIndex = 1;
             // 
             // camera1Combo
             // 
             this.camera1Combo.FormattingEnabled = true;
-            this.camera1Combo.Location = new System.Drawing.Point(663, 1);
+            this.camera1Combo.Location = new System.Drawing.Point(497, 1);
+            this.camera1Combo.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.camera1Combo.Name = "camera1Combo";
-            this.camera1Combo.Size = new System.Drawing.Size(198, 24);
+            this.camera1Combo.Size = new System.Drawing.Size(150, 21);
             this.camera1Combo.TabIndex = 2;
             this.camera1Combo.SelectedIndexChanged += new System.EventHandler(this.camera1Combo_SelectedIndexChanged);
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(12, 12);
+            this.pictureBox1.Location = new System.Drawing.Point(9, 10);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(615, 428);
+            this.pictureBox1.Size = new System.Drawing.Size(461, 348);
             this.pictureBox1.TabIndex = 3;
             this.pictureBox1.TabStop = false;
             // 
             // btStop
             // 
             this.btStop.Enabled = false;
-            this.btStop.Location = new System.Drawing.Point(792, 33);
+            this.btStop.Location = new System.Drawing.Point(594, 27);
+            this.btStop.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btStop.Name = "btStop";
-            this.btStop.Size = new System.Drawing.Size(69, 29);
+            this.btStop.Size = new System.Drawing.Size(52, 24);
             this.btStop.TabIndex = 4;
             this.btStop.Text = "Stop";
             this.btStop.UseVisualStyleBackColor = true;
             this.btStop.Click += new System.EventHandler(this.btStop_Click);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(652, 55);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(55, 23);
+            this.button1.TabIndex = 5;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(873, 452);
+            this.ClientSize = new System.Drawing.Size(719, 367);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.btStop);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.camera1Combo);
             this.Controls.Add(this.tbOut);
             this.Controls.Add(this.btConnect);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -108,6 +126,7 @@
         private System.Windows.Forms.ComboBox camera1Combo;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Button btStop;
+        private System.Windows.Forms.Button button1;
     }
 }
 
