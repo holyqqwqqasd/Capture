@@ -172,6 +172,108 @@ namespace Capture
             }
         }
 
+        private IplImage GetMiddleFrame(CvCapture capture, int frames)
+        {
+            // Промежуточные компонентные изображения
+		    IplImage imgRed;
+		    IplImage imgGreen;
+		    IplImage imgBlue;
+		
+            int width = (int) capture.GetCaptureProperty(CaptureProperty.FrameWidth);
+            int height = (int) capture.GetCaptureProperty(CaptureProperty.FrameHeight);
+
+		    CvSize size = new CvSize(width, height);
+		
+		    imgRed = new IplImage(size, BitDepth.U8, 1);
+		    imgGreen = new IplImage(size, BitDepth.U8, 1);
+		    imgBlue = new IplImage(size, BitDepth.U8, 1);
+		
+		    // Создаем структуры для окончательной картинки
+		    IplImage imgResultRed = new IplImage(size, BitDepth.U8, 1);
+		    IplImage imgResultGreen = new IplImage(size, BitDepth.U8, 1);
+		    IplImage imgResultBlue = new IplImage(size, BitDepth.U8, 1);
+		
+		    IplImage imgResult = new IplImage(size, BitDepth.U8, 3);
+		
+		    // В этих массивах будем суммировать компонентные веса
+		    int[,] theSumRed = new int[width, height];
+            int[,] theSumGreen = new int[width, height];
+            int[,] theSumBlue = new int[width, height];
+
+		    // Инициализируем массивы 0
+		    for (int x = 0; x < width; x++){
+			    for (int y = 0; y < height; y++){
+				    theSumBlue[x, y] = 0;
+				    theSumGreen[x, y] = 0;
+				    theSumRed[x, y] = 0;
+			    }
+		    }
+
+            for (int i = 0; i < frames; i++)
+            {
+                // Захватываем кадр
+                frame = capture.QueryFrame();
+                // Разделяем кадр на отдельные RGB компоненты
+                Cv.Split(frame, imgRed, imgGreen, imgBlue, null);
+
+                // поканально суммируем значения для каждой точки изображения
+                for (int y = 0; y < size.Height; y++)
+                {
+                    for (int x = 0; x < size.Width; x++)
+                    {
+                        theSumRed[x, y] += (int) Cv.GetReal2D(imgRed, y, x);
+                        theSumGreen[x, y] += (int) Cv.GetReal2D(imgGreen, y, x);
+                        theSumBlue[x, y] += (int) Cv.GetReal2D(imgBlue, y, x);
+                    }
+                }
+            }
+
+            for (int y = 0; y < size.Height; y++)
+            {
+                for (int x = 0; x < size.Width; x++)
+                {
+                    // Находим среднее значение
+                    theSumRed[x, y] = (int) ((float)theSumRed[x, y] / (float)frames);
+                    theSumGreen[x, y] = (int) ((float)theSumGreen[x, y] / (float)frames);
+                    theSumBlue[x, y] = (int) ((float)theSumBlue[x, y] / (float)frames);
+                    // Создаём компоненты для итоговой картинки
+                    Cv.SetReal2D(imgResultRed, y, x, theSumRed[x, y]);
+                    Cv.SetReal2D(imgResultGreen, y, x, theSumGreen[x, y]);
+                    Cv.SetReal2D(imgResultBlue, y, x, theSumBlue[x, y]);
+                }
+            }
+
+            // Объединяем каналы в окончательную картинку
+            Cv.Merge(imgResultRed, imgResultGreen, imgResultBlue, null, imgResult);
+
+            /*if (clarity) {
+				float kernel[9];
+				//float	kernel[9] = {0.1111, -0.8889, 0.1111, -0.8889, 4.1111, -0.8889, 0.1111, -0.8889, 0.1111};
+						
+				// Ядро свёртки для увеличения чёткости
+				kernel[0] = -0.1;
+				kernel[1] = -0.1;
+				kernel[2] = -0.1;
+						
+				kernel[3] = -0.1;	// [-0.1] [-0.1] [-0.1]
+				kernel[4] = 2;		// [-0.1] [  2\1.8 ] [-0.1] 
+				kernel[5] = -0.1;	// [-0.1] [-0.1] [-0.1]
+						
+				kernel[6] = -0.1;
+				kernel[7] = -0.1;
+				kernel[8] = -0.1;
+				// Матрица
+				CvMat kernel_matrix = cvMat(3,3,CV_32FC1,kernel);
+				// Рабочая копия кадра
+				IplImage *src = NULL;
+				src = cvCloneImage(imgResult);
+				// Повышаем чёткость
+				cvFilter2D(src, imgResult, &kernel_matrix, cvPoint(-1,-1));
+				cvReleaseImage(&src);
+			}*/
+            return imgResult;
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             try
@@ -263,6 +365,44 @@ namespace Capture
                     Application.DoEvents();
                     if (Stop) break;
                 }
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                capture = new CvCapture(NumDev);
+            }
+            catch
+            {
+                MessageBox.Show("[!] Error: Can't open camera.");
+            }
+
+            if (capture == null) //Не удалось соединиться с камерой !
+                return;
+
+            Stop = false;
+            btStop.Enabled = true;
+
+            tbOut.AppendText("[i] Подключение к камере:\r\n     " + camera1Combo.Items[NumDev] + "\r\n");
+
+            IplImage frame = null;
+
+            while (!Stop)
+            {
+                if (frame != null)
+                {
+                    frame.Dispose();
+                    frame = null;
+                }
+
+                frame = GetMiddleFrame(capture, 7);
+
+                pictureBox1.Image = BitmapConverter.ToBitmap(frame);
+                pictureBox1.Refresh();
+
+                Application.DoEvents();
             }
         }
 
