@@ -17,7 +17,6 @@ namespace Capture
         }
 
         IplImage frame = null;
-        IplImage src = null;
         CvCapture capture = null;
 
         FilterInfoCollection videoDevices; //Список подключенных видео-устройств
@@ -37,7 +36,6 @@ namespace Capture
 
         const double ScaleFactor = 1.0850;
         const int MinNeighbors = 2;
-
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -63,7 +61,7 @@ namespace Capture
             }
             catch
             {
-                btConnect.Enabled = false;
+                //btConnect.Enabled = false;
 
                 camera1Combo.Items.Add("No cameras found");
 
@@ -169,6 +167,161 @@ namespace Capture
 
                     return faces;
                 }
+            }
+        }
+
+        // TODO: Here Motion Detect
+        private class MotionDetect
+        {
+            CvCapture capture;
+            IplImage frame;
+
+            // Промежуточные компонентные изображения
+            IplImage imgRed;
+            IplImage imgGreen;
+            IplImage imgBlue;
+
+            // Создаем структуры для окончательной картинки
+            IplImage imgResultRed;
+            IplImage imgResultGreen;
+            IplImage imgResultBlue;
+
+            IplImage imgResult;
+            IplImage imgAbsDiff;
+            IplImage imgGray;
+            IplImage imgMorph;
+
+            int width;
+            int height;
+
+            CvSize size;
+
+            // В этих массивах будем суммировать компонентные веса
+            int[,] theSumRed;
+            int[,] theSumGreen;
+            int[,] theSumBlue;
+
+            public MotionDetect(CvCapture capture)
+            {
+                this.capture = capture;
+
+                width = (int)capture.GetCaptureProperty(CaptureProperty.FrameWidth);
+                height = (int)capture.GetCaptureProperty(CaptureProperty.FrameHeight);
+                size = new CvSize(width, height);
+
+                // Промежуточные компонентные изображения
+                imgRed = new IplImage(size, BitDepth.U8, 1);
+                imgGreen = new IplImage(size, BitDepth.U8, 1);
+                imgBlue = new IplImage(size, BitDepth.U8, 1);
+
+                // Создаем структуры для окончательной картинки
+                imgResultRed = new IplImage(size, BitDepth.U8, 1);
+                imgResultGreen = new IplImage(size, BitDepth.U8, 1);
+                imgResultBlue = new IplImage(size, BitDepth.U8, 1);
+
+                imgResult = new IplImage(size, BitDepth.U8, 3);
+                imgAbsDiff = new IplImage(size, BitDepth.U8, 3);
+                imgGray = new IplImage(size, BitDepth.U8, 1);
+                imgMorph = new IplImage(size, BitDepth.U8, 3);
+
+                // В этих массивах будем суммировать компонентные веса
+                theSumRed = new int[width, height];
+                theSumGreen = new int[width, height];
+                theSumBlue = new int[width, height];
+            }
+
+            ~MotionDetect()
+            {
+                imgRed.Dispose();
+                imgGreen.Dispose();
+                imgBlue.Dispose();
+
+                imgResultRed.Dispose();
+                imgResultGreen.Dispose();
+                imgResultBlue.Dispose();
+
+                imgResult.Dispose();
+                imgAbsDiff.Dispose();
+                imgGray.Dispose();
+                imgMorph.Dispose();
+            }
+
+            public IplImage GetMiddleFrame(int frames)
+            {
+                // Инициализируем массивы 0
+                for (int x = 0; x < width; x++)
+                {
+                    for (int y = 0; y < height; y++)
+                    {
+                        theSumBlue[x, y] = 0;
+                        theSumGreen[x, y] = 0;
+                        theSumRed[x, y] = 0;
+                    }
+                }
+
+                for (int i = 0; i < frames; i++)
+                {
+                    // Захватываем кадр
+                    frame = capture.QueryFrame();
+                    // Разделяем кадр на отдельные RGB компоненты
+                    Cv.Split(frame, imgRed, imgGreen, imgBlue, null);
+
+                    // поканально суммируем значения для каждой точки изображения
+                    for (int y = 0; y < size.Height; y++)
+                    {
+                        for (int x = 0; x < size.Width; x++)
+                        {
+                            theSumRed[x, y] += (int)Cv.GetReal2D(imgRed, y, x);
+                            theSumGreen[x, y] += (int)Cv.GetReal2D(imgGreen, y, x);
+                            theSumBlue[x, y] += (int)Cv.GetReal2D(imgBlue, y, x);
+                        }
+                    }
+                }
+
+                for (int y = 0; y < size.Height; y++)
+                {
+                    for (int x = 0; x < size.Width; x++)
+                    {
+                        // Находим среднее значение
+                        theSumRed[x, y] = (int)((float)theSumRed[x, y] / (float)frames);
+                        theSumGreen[x, y] = (int)((float)theSumGreen[x, y] / (float)frames);
+                        theSumBlue[x, y] = (int)((float)theSumBlue[x, y] / (float)frames);
+
+                        // Создаём компоненты для итоговой картинки
+                        Cv.SetReal2D(imgResultRed, y, x, theSumRed[x, y]);
+                        Cv.SetReal2D(imgResultGreen, y, x, theSumGreen[x, y]);
+                        Cv.SetReal2D(imgResultBlue, y, x, theSumBlue[x, y]);
+                    }
+                }
+
+                // Объединяем каналы в окончательную картинку
+                Cv.Merge(imgResultRed, imgResultGreen, imgResultBlue, null, imgResult);
+                return imgResult;
+            }
+
+            public IplImage GetAbsDiffFromResult()
+            {
+                // Захватываем кадр
+                frame = capture.QueryFrame();
+
+                Cv.AbsDiff(imgResult, frame, imgAbsDiff);
+                return imgAbsDiff;
+            }
+
+            public IplImage GetThreshold(IplImage img)
+            {
+                Cv.CvtColor(img, imgGray, ColorConversion.BgrToGray);
+                Cv.Threshold(imgGray, imgGray, 50, 255, ThresholdType.Binary);
+                return imgGray;
+            }
+
+            public IplImage GetMorph(IplImage img)
+            {
+                int radius = 1;
+                IplConvKernel kern = Cv.CreateStructuringElementEx(radius*2+1, radius*2+1, radius, radius, ElementShape.Ellipse);
+                Cv.Erode(img, imgMorph, kern, 5);
+                //Cv.Dilate(imgMorph, imgMorph);
+                return imgMorph;
             }
         }
 
@@ -387,20 +540,23 @@ namespace Capture
 
             tbOut.AppendText("[i] Подключение к камере:\r\n     " + camera1Combo.Items[NumDev] + "\r\n");
 
-            IplImage frame = null;
+            MotionDetect motionDetect = new MotionDetect(capture);
+            IplImage pic1, pic2, pic3;
 
             while (!Stop)
             {
-                if (frame != null)
-                {
-                    frame.Dispose();
-                    frame = null;
-                }
+                pic1 = motionDetect.GetMiddleFrame(5);
+                pic2 = motionDetect.GetAbsDiffFromResult();
+                pic3 = motionDetect.GetMorph(pic2);
 
-                frame = GetMiddleFrame(capture, 7);
-
-                pictureBox1.Image = BitmapConverter.ToBitmap(frame);
+                pictureBox1.Image = BitmapConverter.ToBitmap(pic1);
                 pictureBox1.Refresh();
+
+                pictureBox2.Image = BitmapConverter.ToBitmap(pic2);
+                pictureBox2.Refresh();
+
+                pictureBox3.Image = BitmapConverter.ToBitmap(pic3);
+                pictureBox3.Refresh();
 
                 Application.DoEvents();
             }
