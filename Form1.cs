@@ -6,6 +6,7 @@ using OpenCvSharp.Extensions;
 
 using AForge.Video.DirectShow;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Capture
 {
@@ -191,8 +192,8 @@ namespace Capture
             IplImage imgGray;
             IplImage imgMorph;
 
-            int width;
-            int height;
+            public int width;
+            public int height;
 
             CvSize size;
 
@@ -322,6 +323,24 @@ namespace Capture
                 Cv.Erode(img, imgMorph, kern, 5);
                 //Cv.Dilate(imgMorph, imgMorph);
                 return imgMorph;
+            }
+
+            public List<CvSeq<CvPoint>> GetConters(IplImage img)
+            {
+                List<CvSeq<CvPoint>> listRet = new List<CvSeq<CvPoint>>();
+                CvMemStorage memstorage = new CvMemStorage();
+                CvContourScanner cvConterScanner;
+                CvSeq<CvPoint> findedCounters;
+                cvConterScanner = Cv.StartFindContours(img, memstorage);
+                while (true)
+                {
+                    findedCounters = cvConterScanner.FindNextContour();
+                    if (findedCounters != null)
+                        listRet.Add(findedCounters);
+                    else
+                        break;
+                }
+                return listRet;
             }
         }
 
@@ -541,13 +560,31 @@ namespace Capture
             tbOut.AppendText("[i] Подключение к камере:\r\n     " + camera1Combo.Items[NumDev] + "\r\n");
 
             MotionDetect motionDetect = new MotionDetect(capture);
-            IplImage pic1, pic2, pic3;
+            IplImage pic1, pic2, pic3, pic4, tmp;
+            //tmp = new IplImage(motionDetect.width, motionDetect.height, BitDepth.U8, 1);
+            //pic4 = new IplImage(motionDetect.width, motionDetect.height, BitDepth.U8, 3);
 
             while (!Stop)
             {
                 pic1 = motionDetect.GetMiddleFrame(5);
                 pic2 = motionDetect.GetAbsDiffFromResult();
-                pic3 = motionDetect.GetMorph(pic2);
+                pic3 = motionDetect.GetThreshold(pic2);
+
+                /*List<CvSeq<CvPoint>> conters = motionDetect.GetConters(pic3);
+                foreach (CvSeq<CvPoint> cc in conters) {
+                    if (cc != null)
+                    {
+                        pic4.DrawRect(cc.BoundingRect(true), colors[0]);
+                    }
+                }*/
+
+                pic4 = capture.QueryFrame();
+                CvSeq<CvAvgComp> faces = GetFaces(pic4);
+                for (int i = 0; i < faces.Total; i++)
+                {
+                    CvRect r = faces[i].Value.Rect;
+                    pic4.Rectangle(r, colors[0]);
+                }
 
                 pictureBox1.Image = BitmapConverter.ToBitmap(pic1);
                 pictureBox1.Refresh();
@@ -557,6 +594,9 @@ namespace Capture
 
                 pictureBox3.Image = BitmapConverter.ToBitmap(pic3);
                 pictureBox3.Refresh();
+
+                pictureBox4.Image = BitmapConverter.ToBitmap(pic4);
+                pictureBox4.Refresh();
 
                 Application.DoEvents();
             }
